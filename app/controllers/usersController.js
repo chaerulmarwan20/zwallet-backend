@@ -201,7 +201,7 @@ exports.verify = async (req, res) => {
   }
 };
 
-exports.createPin = async (req, res) => {
+exports.createPin = (req, res) => {
   const id = req.params.id;
 
   const validate = validation.validationPin(req.body);
@@ -473,6 +473,175 @@ exports.delete = (req, res) => {
     })
     .then((result) => {
       helper.printSuccess(res, 200, "Users has been deleted", {});
+    })
+    .catch((err) => {
+      if (err.message === "Internal server error") {
+        helper.printError(res, 500, err.message);
+      }
+      helper.printError(res, 400, err.message);
+    });
+};
+
+exports.updatePassword = async (req, res) => {
+  const id = req.params.id;
+
+  const validate = validation.validationChangePassword(req.body);
+
+  if (validate.error) {
+    helper.printError(res, 400, validate.error.details[0].message);
+    return;
+  }
+
+  const { currentPassword, password } = req.body;
+
+  const data = {
+    currentPassword: currentPassword,
+    password: await hash.hashPassword(password),
+  };
+
+  usersModel
+    .findUser(id, "update password")
+    .then((result) => {
+      return usersModel.updatePassword(id, data);
+    })
+    .then((result) => {
+      delete result[0].password;
+      helper.printSuccess(res, 200, "Password has been updated", result);
+    })
+    .catch((err) => {
+      if (err.message === "Internal server error") {
+        helper.printError(res, 500, err.message);
+      }
+      helper.printError(res, 400, err.message);
+    });
+};
+
+exports.checkPin = (req, res) => {
+  const id = req.params.id;
+
+  const validate = validation.validationPin(req.body);
+
+  if (validate.error) {
+    helper.printError(res, 400, validate.error.details[0].message);
+    return;
+  }
+
+  const pin = req.body.pin;
+
+  const data = pin;
+
+  usersModel
+    .checkPin(id, data)
+    .then((result) => {
+      delete result[0].password;
+      delete result[0].createdAt;
+      delete result[0].updatedAt;
+      delete result[0].role;
+      delete result[0].active;
+      helper.printSuccess(res, 200, "Check pin successfull", result);
+    })
+    .catch((err) => {
+      if (err.message === "Internal server error") {
+        helper.printError(res, 500, err.message);
+      }
+      helper.printError(res, 400, err.message);
+    });
+};
+
+exports.updatePin = (req, res) => {
+  const id = req.params.id;
+
+  const validate = validation.validationPin(req.body);
+
+  if (validate.error) {
+    helper.printError(res, 400, validate.error.details[0].message);
+    return;
+  }
+
+  const pin = req.body.pin;
+
+  const data = pin;
+
+  usersModel
+    .findUser(id, "update pin")
+    .then((res) => {
+      return usersModel.updatePin(id, data);
+    })
+    .then((result) => {
+      delete result[0].password;
+      delete result[0].createdAt;
+      delete result[0].updatedAt;
+      delete result[0].role;
+      delete result[0].active;
+      helper.printSuccess(res, 200, "Your pin has been updated", result);
+    })
+    .catch((err) => {
+      if (err.message === "Internal server error") {
+        helper.printError(res, 500, err.message);
+      }
+      helper.printError(res, 400, err.message);
+    });
+};
+
+exports.createPhoneNumber = (req, res) => {
+  const id = req.params.id;
+
+  const validate = validation.validationPhoneNumber(req.body);
+
+  if (validate.error) {
+    helper.printError(res, 400, validate.error.details[0].message);
+    return;
+  }
+
+  const phoneNumber = req.body.phoneNumber;
+
+  const data = phoneNumber;
+
+  usersModel
+    .findUser(id, "create phoneNumber")
+    .then((res) => {
+      return usersModel.createPhoneNumber(id, data);
+    })
+    .then((result) => {
+      delete result[0].password;
+      delete result[0].createdAt;
+      delete result[0].updatedAt;
+      delete result[0].role;
+      delete result[0].active;
+      delete result[0].pin;
+      helper.printSuccess(
+        res,
+        200,
+        "Your phoneNumber has been created",
+        result
+      );
+    })
+    .catch((err) => {
+      if (err.message === "Internal server error") {
+        helper.printError(res, 500, err.message);
+      }
+      helper.printError(res, 400, err.message);
+    });
+};
+
+exports.deletePhoneNumber = (req, res) => {
+  const id = req.params.id;
+
+  usersModel
+    .deletePhoneNumber(id)
+    .then((result) => {
+      delete result[0].password;
+      delete result[0].createdAt;
+      delete result[0].updatedAt;
+      delete result[0].role;
+      delete result[0].active;
+      delete result[0].pin;
+      helper.printSuccess(
+        res,
+        200,
+        "Your phoneNumber has been deleted",
+        result
+      );
     })
     .catch((err) => {
       if (err.message === "Internal server error") {

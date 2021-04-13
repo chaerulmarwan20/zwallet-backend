@@ -286,32 +286,6 @@ exports.updateUsers = (id, data) => {
   });
 };
 
-exports.updatePassword = (id, data) => {
-  return new Promise((resolve, reject) => {
-    connection.query(
-      "UPDATE users SET password = ? WHERE id = ?",
-      [data, id],
-      (err, result) => {
-        if (!err) {
-          connection.query(
-            "SELECT * FROM users WHERE id = ?",
-            id,
-            (err, result) => {
-              if (!err) {
-                resolve(result);
-              } else {
-                reject(new Error("Internal server error"));
-              }
-            }
-          );
-        } else {
-          reject(new Error("Internal server error"));
-        }
-      }
-    );
-  });
-};
-
 exports.deleteUsers = (id) => {
   return new Promise((resolve, reject) => {
     connection.query("DELETE FROM users WHERE id = ?", id, (err, result) => {
@@ -368,14 +342,148 @@ exports.setPassword = (password, email) => {
   });
 };
 
-exports.checkPassword = (password) => {
+exports.updatePassword = (id, data) => {
+  return new Promise((resolve, reject) => {
+    connection.query("SELECT * FROM users WHERE id = ?", id, (err, result) => {
+      if (err) {
+        reject(new Error("Internal server error"));
+      } else {
+        if (result.length === 1) {
+          console.log(data.currentPassword);
+          console.log(result[0].password);
+          bcrypt.compare(
+            data.currentPassword,
+            result[0].password,
+            (err, result) => {
+              if (err) {
+                reject(new Error("Internal server error"));
+              } else {
+                if (result) {
+                  connection.query(
+                    "UPDATE users SET password = ? WHERE id = ?",
+                    [data.password, id],
+                    (err, result) => {
+                      if (!err) {
+                        connection.query(
+                          "SELECT * FROM users WHERE id = ?",
+                          id,
+                          (err, result) => {
+                            if (!err) {
+                              resolve(result);
+                            } else {
+                              reject(new Error("Internal server error"));
+                            }
+                          }
+                        );
+                      } else {
+                        reject(new Error("Internal server error"));
+                      }
+                    }
+                  );
+                } else {
+                  reject(new Error("Wrong current password"));
+                }
+              }
+            }
+          );
+        } else {
+          reject(new Error("Your email is not registered"));
+        }
+      }
+    });
+  });
+};
+
+exports.checkPin = (id, data) => {
   return new Promise((resolve, reject) => {
     connection.query(
-      "SELECT password FROM users WHERE password = ?",
-      password,
+      "SELECT * FROM users WHERE pin = ? AND id = ?",
+      [data, id],
       (err, result) => {
         if (!err) {
-          resolve(result);
+          if (result.length > 0) {
+            resolve(result);
+          } else {
+            reject(new Error("Wrong pin"));
+          }
+        } else {
+          reject(new Error("Internal server error"));
+        }
+      }
+    );
+  });
+};
+
+exports.updatePin = (id, data) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "UPDATE users SET pin = ? WHERE id = ?",
+      [data, id],
+      (err, result) => {
+        if (!err) {
+          connection.query(
+            "SELECT * FROM users WHERE id = ?",
+            id,
+            (err, result) => {
+              if (!err) {
+                resolve(result);
+              } else {
+                reject(new Error("Internal server error"));
+              }
+            }
+          );
+        } else {
+          reject(new Error("Internal server error"));
+        }
+      }
+    );
+  });
+};
+
+exports.createPhoneNumber = (id, data) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "UPDATE users SET phoneNumber = ? WHERE id = ?",
+      [data, id],
+      (err, result) => {
+        if (!err) {
+          connection.query(
+            "SELECT * FROM users WHERE id = ?",
+            id,
+            (err, result) => {
+              if (!err) {
+                resolve(result);
+              } else {
+                reject(new Error("Internal server error"));
+              }
+            }
+          );
+        } else {
+          reject(new Error("Internal server error"));
+        }
+      }
+    );
+  });
+};
+
+exports.deletePhoneNumber = (id) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "UPDATE users SET phoneNumber = 0 WHERE id = ?",
+      id,
+      (err, result) => {
+        if (!err) {
+          connection.query(
+            "SELECT * FROM users WHERE id = ?",
+            id,
+            (err, result) => {
+              if (!err) {
+                resolve(result);
+              } else {
+                reject(new Error("Internal server error"));
+              }
+            }
+          );
         } else {
           reject(new Error("Internal server error"));
         }

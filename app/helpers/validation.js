@@ -35,4 +35,21 @@ module.exports = {
     });
     return schema.validate(users);
   },
+  validationChangePassword: (users) => {
+    const schema = Joi.object({
+      currentPassword: Joi.string().min(8).required().strict(),
+      password: Joi.string().min(8).required().strict(),
+      confirmPassword: Joi.string()
+        .valid(Joi.ref("password"))
+        .required()
+        .strict(),
+    });
+    return schema.validate(users);
+  },
+  validationPhoneNumber: (users) => {
+    const schema = Joi.object({
+      phoneNumber: Joi.number().required(),
+    });
+    return schema.validate(users);
+  },
 };
