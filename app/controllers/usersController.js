@@ -27,6 +27,9 @@ exports.findAll = (req, res) => {
           break;
         } else {
           delete result[i].password;
+          delete result[i].pin;
+          delete result[i].createdAt;
+          delete result[i].updatedAt;
         }
       }
       helper.printPaginate(
@@ -56,6 +59,9 @@ exports.findOne = (req, res) => {
         return;
       }
       delete result[0].password;
+      delete result[0].pin;
+      delete result[0].createdAt;
+      delete result[0].updatedAt;
       helper.printSuccess(res, 200, "Find one users successfully", result);
     })
     .catch((err) => {
@@ -79,30 +85,27 @@ exports.create = async (req, res) => {
   }
 
   const {
+    username,
     email,
     password,
+    firstName,
+    lastName,
     phoneNumber,
-    username,
-    firstname,
-    lastname,
-    address,
-    gender,
-    dateOfBirth,
   } = req.body;
 
   const data = {
+    username,
     email,
     password: await hash.hashPassword(password),
+    firstName,
+    lastName,
+    fullName: `${firstName} ${lastName}`,
+    pin: 0,
     phoneNumber,
-    username,
-    firstname,
-    lastname,
-    address,
-    gender,
-    dateOfBirth,
+    image,
+    credit: 0,
     role: 2,
     active: false,
-    image,
   };
 
   usersModel
@@ -113,16 +116,17 @@ exports.create = async (req, res) => {
         return;
       }
       delete result[0].password;
+      delete result[0].pin;
+      delete result[0].createdAt;
+      delete result[0].updatedAt;
       const payload = {
         id: result[0].id,
-        email: result[0].email,
-        phoneNumber: result[0].phoneNumber,
         username: result[0].username,
-        firstname: result[0].firstname,
-        lastname: result[0].lastname,
-        address: result[0].address,
-        gender: result[0].gender,
-        dateOfBirth: result[0].dateOfBirth,
+        email: result[0].email,
+        firstName: result[0].firstName,
+        lastName: result[0].lastName,
+        fullName: result[0].fullName,
+        phoneNumber: result[0].phoneNumber,
         role: result[0].role,
       };
       jwt.sign(payload, secretKey, { expiresIn: "24h" }, async (err, token) => {
@@ -197,111 +201,36 @@ exports.verify = async (req, res) => {
   }
 };
 
-exports.update = async (req, res) => {
+exports.createPin = async (req, res) => {
   const id = req.params.id;
 
-  const validate = validation.validationUsersUpdate(req.body);
+  const validate = validation.validationPin(req.body);
 
   if (validate.error) {
     helper.printError(res, 400, validate.error.details[0].message);
     return;
   }
 
-  const {
-    email,
-    phoneNumber,
-    username,
-    firstname,
-    lastname,
-    address,
-    gender,
-    dateOfBirth,
-  } = req.body;
+  const pin = req.body.pin;
 
-  const data = {
-    email,
-    phoneNumber,
-    username,
-    firstname,
-    lastname,
-    address,
-    gender,
-    dateOfBirth,
-  };
+  const data = pin;
 
   usersModel
-    .findUser(id, "update")
-    .then((result) => {
-      let image;
-      if (!req.file) {
-        image = result[0].image;
-      } else {
-        const oldImage = result[0].image;
-        if (oldImage !== "images\\avatar.png") {
-          removeImage(oldImage);
-        }
-        image = req.file.path;
-      }
-      data.image = image;
-      return usersModel.updateUsers(id, data);
+    .findUser(id, "creating pin")
+    .then((res) => {
+      return usersModel.createPin(id, data);
     })
     .then((result) => {
+      if (result.affectedRows === 0) {
+        helper.printError(res, 400, "Error creating pin");
+        return;
+      }
       delete result[0].password;
-      helper.printSuccess(res, 200, "Users has been updated", result);
-    })
-    .catch((err) => {
-      if (err.message === "Internal server error") {
-        helper.printError(res, 500, err.message);
-      }
-      helper.printError(res, 400, err.message);
-    });
-};
-
-exports.updatePassword = async (req, res) => {
-  const id = req.params.id;
-
-  const validate = validation.validationUsersUpdatePassword(req.body);
-
-  if (validate.error) {
-    helper.printError(res, 400, validate.error.details[0].message);
-    return;
-  }
-
-  const { password } = req.body;
-
-  const data = await hash.hashPassword(password);
-
-  usersModel
-    .findUser(id, "update password")
-    .then((result) => {
-      return usersModel.updatePassword(id, data);
-    })
-    .then((result) => {
-      delete result[0].password;
-      helper.printSuccess(res, 200, "Password has been updated", result);
-    })
-    .catch((err) => {
-      if (err.message === "Internal server error") {
-        helper.printError(res, 500, err.message);
-      }
-      helper.printError(res, 400, err.message);
-    });
-};
-
-exports.delete = (req, res) => {
-  const id = req.params.id;
-
-  usersModel
-    .findUser(id, "delete")
-    .then((result) => {
-      const image = result[0].image;
-      if (image !== "images\\avatar.png") {
-        removeImage(image);
-      }
-      return usersModel.deleteUsers(id);
-    })
-    .then((result) => {
-      helper.printSuccess(res, 200, "Users has been deleted", {});
+      delete result[0].createdAt;
+      delete result[0].updatedAt;
+      delete result[0].role;
+      delete result[0].active;
+      helper.printSuccess(res, 200, "Your pin has been created", result);
     })
     .catch((err) => {
       if (err.message === "Internal server error") {
@@ -312,6 +241,13 @@ exports.delete = (req, res) => {
 };
 
 exports.login = (req, res) => {
+  const validate = validation.validationLogin(req.body);
+
+  if (validate.error) {
+    helper.printError(res, 400, validate.error.details[0].message);
+    return;
+  }
+
   const { email, password } = req.body;
 
   const data = {
@@ -323,16 +259,19 @@ exports.login = (req, res) => {
     .login(data)
     .then((result) => {
       delete result.password;
+      delete result.pin;
+      delete result.role;
+      delete result.active;
+      delete result.createdAt;
+      delete result.updatedAt;
       const payload = {
         id: result.id,
-        email: result.email,
-        phoneNumber: result.phoneNumber,
         username: result.username,
-        firstname: result.firstname,
-        lastname: result.lastname,
-        address: result.address,
-        gender: result.gender,
-        dateOfBirth: result.dateOfBirth,
+        email: result.email,
+        firstName: result.firstName,
+        lastName: result.lastName,
+        fullName: result.fullName,
+        phoneNumber: result.phoneNumber,
         role: result.role,
       };
       jwt.sign(payload, secretKey, { expiresIn: "24h" }, async (err, token) => {
@@ -368,16 +307,17 @@ exports.forgotPassword = (req, res) => {
         return;
       }
       delete result[0].password;
+      delete result[0].pin;
+      delete result[0].createdAt;
+      delete result[0].updatedAt;
       const payload = {
         id: result[0].id,
-        email: result[0].email,
-        phoneNumber: result[0].phoneNumber,
         username: result[0].username,
-        firstname: result[0].firstname,
-        lastname: result[0].lastname,
-        address: result[0].address,
-        gender: result[0].gender,
-        dateOfBirth: result[0].dateOfBirth,
+        email: result[0].email,
+        firstName: result[0].firstName,
+        lastName: result[0].lastName,
+        fullName: result[0].fullName,
+        phoneNumber: result[0].phoneNumber,
         role: result[0].role,
       };
       jwt.sign(payload, secretKey, { expiresIn: "24h" }, async (err, token) => {
@@ -401,6 +341,13 @@ exports.forgotPassword = (req, res) => {
 };
 
 exports.resetPassword = async (req, res) => {
+  const validate = validation.validationPassword(req.body);
+
+  if (validate.error) {
+    helper.printError(res, 400, validate.error.details[0].message);
+    return;
+  }
+
   const email = req.query.email;
   const token = req.query.token;
   const password = req.body.password;
@@ -450,6 +397,89 @@ exports.resetPassword = async (req, res) => {
   } catch (err) {
     helper.printError(res, 500, err.message);
   }
+};
+
+exports.update = async (req, res) => {
+  const validate = validation.validationUsers(req.body);
+
+  if (validate.error) {
+    helper.printError(res, 400, validate.error.details[0].message);
+    return;
+  }
+
+  const id = req.params.id;
+
+  const {
+    username,
+    email,
+    password,
+    firstName,
+    lastName,
+    phoneNumber,
+  } = req.body;
+
+  const data = {
+    username,
+    email,
+    password: await hash.hashPassword(password),
+    firstName,
+    lastName,
+    fullName: `${firstName} ${lastName}`,
+    phoneNumber,
+  };
+
+  usersModel
+    .findUser(id, "update")
+    .then((result) => {
+      let image;
+      if (!req.file) {
+        image = result[0].image;
+      } else {
+        const oldImage = result[0].image;
+        if (oldImage !== "images\\avatar.png") {
+          removeImage(oldImage);
+        }
+        image = req.file.path;
+      }
+      data.image = image;
+      return usersModel.updateUsers(id, data);
+    })
+    .then((result) => {
+      delete result[0].password;
+      delete result[0].pin;
+      delete result[0].createdAt;
+      delete result[0].updatedAt;
+      helper.printSuccess(res, 200, "Users has been updated", result);
+    })
+    .catch((err) => {
+      if (err.message === "Internal server error") {
+        helper.printError(res, 500, err.message);
+      }
+      helper.printError(res, 400, err.message);
+    });
+};
+
+exports.delete = (req, res) => {
+  const id = req.params.id;
+
+  usersModel
+    .findUser(id, "delete")
+    .then((result) => {
+      const image = result[0].image;
+      if (image !== "images\\avatar.png") {
+        removeImage(image);
+      }
+      return usersModel.deleteUsers(id);
+    })
+    .then((result) => {
+      helper.printSuccess(res, 200, "Users has been deleted", {});
+    })
+    .catch((err) => {
+      if (err.message === "Internal server error") {
+        helper.printError(res, 500, err.message);
+      }
+      helper.printError(res, 400, err.message);
+    });
 };
 
 const removeImage = (filePath) => {

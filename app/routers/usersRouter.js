@@ -5,15 +5,15 @@ const multer = require("../middlewares/multer");
 const auth = require("../middlewares/auth");
 
 router
-  .get("/", auth.verification(), auth.isAdmin(), usersController.findAll)
+  .get("/", auth.verification(), usersController.findAll)
   .get("/find-one", auth.verification(), usersController.findOne)
   .post("/", multer.uploadImage.single("image"), usersController.create)
   .get("/auth/verify", usersController.verify)
+  .put("/pin/:id", usersController.createPin)
   .post("/auth/login", usersController.login)
   .post("/auth/forgot-password", usersController.forgotPassword)
   .put("/auth/reset-password", usersController.resetPassword)
   .put("/:id", multer.uploadImage.single("image"), usersController.update)
-  .put("/edit-password/:id", usersController.updatePassword)
-  .delete("/:id", auth.verification(), auth.isAdmin(), usersController.delete);
+  .delete("/:id", auth.verification(), usersController.delete);
 
 module.exports = router;
