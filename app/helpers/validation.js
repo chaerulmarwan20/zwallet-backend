@@ -52,4 +52,13 @@ module.exports = {
     });
     return schema.validate(users);
   },
+  validationTransactions: (transactions) => {
+    const schema = Joi.object({
+      idUser: Joi.number().required(),
+      idReceiver: Joi.number().required(),
+      amount: Joi.number().required(),
+      notes: Joi.string().required(),
+    });
+    return schema.validate(transactions);
+  },
 };

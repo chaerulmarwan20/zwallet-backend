@@ -9,7 +9,7 @@ router
   .get("/find-one", auth.verification(), usersController.findOne)
   .post("/", multer.uploadImage.single("image"), usersController.create)
   .get("/auth/verify", usersController.verify)
-  .post("/pin/:id", usersController.createPin)
+  .post("/pin/:email", usersController.createPin)
   .post("/auth/login", usersController.login)
   .post("/auth/forgot-password", usersController.forgotPassword)
   .put("/auth/reset-password", usersController.resetPassword)
@@ -18,7 +18,7 @@ router
     auth.verification(),
     usersController.updatePassword
   )
-  .get("/pin/:id", auth.verification(), usersController.checkPin)
+  .post("/pin/check/:id", auth.verification(), usersController.checkPin)
   .put("/pin/:id", auth.verification(), usersController.updatePin)
   .post(
     "/phoneNumber/:id",

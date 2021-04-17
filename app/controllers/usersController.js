@@ -103,7 +103,7 @@ exports.create = async (req, res) => {
     pin: 0,
     phoneNumber,
     image,
-    credit: 0,
+    credit: 100000,
     role: 2,
     active: false,
   };
@@ -186,7 +186,7 @@ exports.verify = async (req, res) => {
               helper.printSuccess(
                 res,
                 200,
-                `${email} has been activated, please login!`,
+                `${email} has been activated, please create your pin!`,
                 decoded
               );
             }
@@ -202,7 +202,7 @@ exports.verify = async (req, res) => {
 };
 
 exports.createPin = (req, res) => {
-  const id = req.params.id;
+  const email = req.params.email;
 
   const validate = validation.validationPin(req.body);
 
@@ -216,9 +216,9 @@ exports.createPin = (req, res) => {
   const data = pin;
 
   usersModel
-    .findUser(id, "creating pin")
+    .findEmail(email, "creating pin")
     .then((res) => {
-      return usersModel.createPin(id, data);
+      return usersModel.createPin(email, data);
     })
     .then((result) => {
       if (result.affectedRows === 0) {
@@ -230,7 +230,12 @@ exports.createPin = (req, res) => {
       delete result[0].updatedAt;
       delete result[0].role;
       delete result[0].active;
-      helper.printSuccess(res, 200, "Your pin has been created", result);
+      helper.printSuccess(
+        res,
+        200,
+        "Your pin has been created, please login!",
+        result
+      );
     })
     .catch((err) => {
       if (err.message === "Internal server error") {

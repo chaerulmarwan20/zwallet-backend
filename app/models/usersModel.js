@@ -5,7 +5,7 @@ exports.getAllUsers = (queryPage, queryPerPage, keyword, sortBy, order) => {
   return new Promise((resolve, reject) => {
     connection.query(
       "SELECT COUNT(*) AS totalData FROM users WHERE username LIKE ? OR email LIKE ?",
-      [`%${keyword}%`, `%${keyword}%`, `%${keyword}%`],
+      [`%${keyword}%`, `%${keyword}%`],
       (err, result) => {
         let totalData, page, perPage, totalPage;
         if (err) {
@@ -169,16 +169,16 @@ exports.setActive = (email) => {
   });
 };
 
-exports.createPin = (id, data) => {
+exports.createPin = (email, data) => {
   return new Promise((resolve, reject) => {
     connection.query(
-      "UPDATE users SET pin = ? WHERE id = ?",
-      [data, id],
+      "UPDATE users SET pin = ? WHERE email = ?",
+      [data, email],
       (err, result) => {
         if (!err) {
           connection.query(
-            "SELECT * FROM users WHERE id = ?",
-            id,
+            "SELECT * FROM users WHERE email = ?",
+            email,
             (err, result) => {
               if (!err) {
                 resolve(result);
@@ -311,6 +311,26 @@ exports.findUser = (id, message) => {
         reject(new Error("Internal server error"));
       }
     });
+  });
+};
+
+exports.findEmail = (email, message) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "SELECT * FROM users WHERE email = ?",
+      email,
+      (err, result) => {
+        if (!err) {
+          if (result.length == 1) {
+            resolve(result);
+          } else {
+            reject(new Error(`Cannot ${message} users with email = ${email}`));
+          }
+        } else {
+          reject(new Error("Internal server error"));
+        }
+      }
+    );
   });
 };
 
@@ -469,7 +489,7 @@ exports.createPhoneNumber = (id, data) => {
 exports.deletePhoneNumber = (id) => {
   return new Promise((resolve, reject) => {
     connection.query(
-      "UPDATE users SET phoneNumber = 0 WHERE id = ?",
+      `UPDATE users SET phoneNumber = "none" WHERE id = ?`,
       id,
       (err, result) => {
         if (!err) {
