@@ -12,6 +12,15 @@ module.exports = {
     });
     return schema.validate(users);
   },
+  validationUsersUpdate: (users) => {
+    const schema = Joi.object({
+      username: Joi.string().required(),
+      firstName: Joi.string().required(),
+      lastName: Joi.string().required(),
+      phoneNumber: Joi.number().required(),
+    });
+    return schema.validate(users);
+  },
   validationPin: (users) => {
     const schema = Joi.object({
       pin: Joi.number().min(6).required(),

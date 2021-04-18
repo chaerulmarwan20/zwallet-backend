@@ -405,7 +405,7 @@ exports.resetPassword = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  const validate = validation.validationUsers(req.body);
+  const validate = validation.validationUsersUpdate(req.body);
 
   if (validate.error) {
     helper.printError(res, 400, validate.error.details[0].message);
@@ -414,19 +414,10 @@ exports.update = async (req, res) => {
 
   const id = req.params.id;
 
-  const {
-    username,
-    email,
-    password,
-    firstName,
-    lastName,
-    phoneNumber,
-  } = req.body;
+  const { username, firstName, lastName, phoneNumber } = req.body;
 
   const data = {
     username,
-    email,
-    password: await hash.hashPassword(password),
     firstName,
     lastName,
     fullName: `${firstName} ${lastName}`,
