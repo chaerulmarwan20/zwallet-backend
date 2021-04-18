@@ -6,11 +6,12 @@ const auth = require("../middlewares/auth");
 router
   .get("/", auth.verification(), transactionsController.findAll)
   .post("/", auth.verification(), transactionsController.create)
+  .post("/details", auth.verification(), transactionsController.createDetails)
   .get("/:id", auth.verification(), transactionsController.findUserTransactions)
   .get(
-    "/receiver/:id",
+    "/details/:id",
     auth.verification(),
-    transactionsController.findReceiverTransactions
+    transactionsController.findDetailsById
   );
 
 module.exports = router;

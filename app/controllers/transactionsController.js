@@ -56,12 +56,10 @@ exports.create = async (req, res) => {
     idUser,
     date: new Date(),
     idReceiver,
-    idSender: null,
     amount,
     notes,
     type: "Transfer",
     status: "Success",
-    credit: amount,
   };
 
   transactionsModel
@@ -71,24 +69,65 @@ exports.create = async (req, res) => {
         helper.printError(res, 400, "Error creating transactions");
         return;
       }
-      const credit = result[0].credit;
       const idUser = result[0].idUser;
       const idReceiver = result[0].idReceiver;
-      await transactionsModel.reduceCredit(credit, idUser);
-      await transactionsModel.addCredit(credit, idReceiver);
+      await transactionsModel.reduceCredit(amount, idUser);
+      await transactionsModel.addCredit(amount, idReceiver);
       const dataSender = {
         idUser: idReceiver,
         date: new Date(),
-        idReceiver: null,
-        idSender: idUser,
+        idReceiver: idUser,
         amount: amount,
         notes: notes,
         type: "Receive",
         status: "Success",
-        credit: amount,
       };
       await transactionsModel.createTransactions(dataSender);
       helper.printSuccess(res, 200, "Transactions successfully", result);
+    })
+    .catch((err) => {
+      helper.printError(res, 500, err.message);
+    });
+};
+
+exports.createDetails = async (req, res) => {
+  const validate = validation.validationDetails(req.body);
+
+  if (validate.error) {
+    helper.printError(res, 400, validate.error.details[0].message);
+    return;
+  }
+
+  const { idUser, idReceiver, amount, balanceLeft, notes } = req.body;
+
+  try {
+    const getUser = await transactionsModel.getUser(idUser);
+    const getReceiver = await transactionsModel.getUser(idReceiver);
+    if (getUser < 1 || getReceiver < 1) {
+      helper.printError(res, 400, "Id user or receiver not found!");
+      return;
+    }
+  } catch (err) {
+    helper.printError(res, 500, err.message);
+  }
+
+  const data = {
+    idUser,
+    idReceiver,
+    amount,
+    balanceLeft,
+    date: new Date(),
+    notes,
+  };
+
+  transactionsModel
+    .createDetails(data)
+    .then((result) => {
+      if (result.affectedRows === 0) {
+        helper.printError(res, 400, "Error creating details");
+        return;
+      }
+      helper.printSuccess(res, 200, "Please follow next step!", result);
     })
     .catch((err) => {
       helper.printError(res, 500, err.message);
@@ -124,29 +163,17 @@ exports.findUserTransactions = (req, res) => {
     });
 };
 
-exports.findReceiverTransactions = (req, res) => {
+exports.findDetailsById = (req, res) => {
   const id = req.params.id;
-  const { page, perPage } = req.query;
-  const sortBy = req.query.sortBy ? req.query.sortBy : "id";
-  const order = req.query.order ? req.query.order : "ASC";
 
   transactionsModel
-    .getAllReceiverTransactions(id, page, perPage, sortBy, order)
-    .then(([totalData, totalPage, result, page, perPage]) => {
+    .getDetailsById(id)
+    .then((result) => {
       if (result < 1) {
-        helper.printError(res, 400, "Transactions not found");
+        helper.printError(res, 400, "Details not found");
         return;
       }
-      helper.printPaginate(
-        res,
-        200,
-        "Find all receiver transactions successfully",
-        totalData,
-        totalPage,
-        result,
-        page,
-        perPage
-      );
+      helper.printSuccess(res, 200, "Find details by id successfully", result);
     })
     .catch((err) => {
       helper.printError(res, 500, err.message);

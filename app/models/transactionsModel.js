@@ -23,7 +23,7 @@ exports.getAllTransactions = (
         }
         const firstData = perPage * page - perPage;
         connection.query(
-          `SELECT transactions.id, users.username, users.email, users.fullName, users.image, transactions.date, transactions.idReceiver, transactions.amount, transactions.notes, transactions.status, transactions.credit FROM transactions INNER JOIN users ON transactions.idUser = users.id WHERE transactions.status LIKE ? OR users.username LIKE ? OR users.email LIKE ? ORDER BY ${sortBy} ${order} LIMIT ?, ?`,
+          `SELECT transactions.id, users.username, users.email, users.fullName, users.image, transactions.date, transactions.idReceiver, transactions.amount, transactions.notes, transactions.status FROM transactions INNER JOIN users ON transactions.idUser = users.id WHERE transactions.status LIKE ? OR users.username LIKE ? OR users.email LIKE ? ORDER BY ${sortBy} ${order} LIMIT ?, ?`,
           [`%${keyword}%`, `%${keyword}%`, `%${keyword}%`, firstData, perPage],
           (err, result) => {
             if (err) {
@@ -60,6 +60,28 @@ exports.createTransactions = (data) => {
       if (!err) {
         connection.query(
           "SELECT * FROM transactions WHERE id = ?",
+          result.insertId,
+          (err, result) => {
+            if (!err) {
+              resolve(result);
+            } else {
+              reject(new Error("Internal server error"));
+            }
+          }
+        );
+      } else {
+        reject(new Error("Internal server error"));
+      }
+    });
+  });
+};
+
+exports.createDetails = (data) => {
+  return new Promise((resolve, reject) => {
+    connection.query("INSERT INTO details SET ?", data, (err, result) => {
+      if (!err) {
+        connection.query(
+          "SELECT * FROM details WHERE id = ?",
           result.insertId,
           (err, result) => {
             if (!err) {
@@ -131,7 +153,7 @@ exports.getAllUserTransactions = (
         }
         const firstData = perPage * page - perPage;
         connection.query(
-          `SELECT transactions.id, users.username, users.email, users.fullName, users.image, transactions.date, transactions.idUser, transactions.amount, transactions.notes, transactions.status, transactions.type, transactions.credit FROM transactions INNER JOIN users ON transactions.idReceiver = users.id WHERE transactions.idUser = ? ORDER BY ${sortBy} ${order} LIMIT ?, ?`,
+          `SELECT transactions.id, users.username, users.email, users.fullName, users.image, transactions.date, transactions.idUser, transactions.amount, transactions.notes, transactions.status, transactions.type FROM transactions INNER JOIN users ON transactions.idReceiver = users.id WHERE transactions.idUser = ? ORDER BY ${sortBy} ${order} LIMIT ?, ?`,
           [id, firstData, perPage],
           (err, result) => {
             if (err) {
@@ -146,39 +168,17 @@ exports.getAllUserTransactions = (
   });
 };
 
-exports.getAllReceiverTransactions = (
-  id,
-  queryPage,
-  queryPerPage,
-  sortBy,
-  order
-) => {
+exports.getDetailsById = (id) => {
   return new Promise((resolve, reject) => {
     connection.query(
-      "SELECT COUNT(*) AS totalData FROM transactions WHERE transactions.idReceiver = ?",
-      [id],
+      `SELECT details.id, users.username, users.email, users.fullName, users.image, users.phoneNumber, details.date, details.idUser, details.idReceiver, details.amount, details.balanceLeft, details.notes FROM details INNER JOIN users ON details.idReceiver = users.id WHERE details.id = ?`,
+      id,
       (err, result) => {
-        let totalData, page, perPage, totalPage;
-        if (err) {
-          reject(new Error("Internal server error"));
+        if (!err) {
+          resolve(result);
         } else {
-          totalData = result[0].totalData;
-          page = queryPage ? parseInt(queryPage) : 1;
-          perPage = queryPerPage ? parseInt(queryPerPage) : 5;
-          totalPage = Math.ceil(totalData / perPage);
+          reject(new Error("Internal server error"));
         }
-        const firstData = perPage * page - perPage;
-        connection.query(
-          `SELECT transactions.id, users.username, users.email, users.fullName, users.image, transactions.date, transactions.idReceiver, transactions.amount, transactions.notes, transactions.status, transactions.type, transactions.credit FROM transactions INNER JOIN users ON transactions.idUser = users.id WHERE transactions.idReceiver = ? ORDER BY ${sortBy} ${order} LIMIT ?, ?`,
-          [id, firstData, perPage],
-          (err, result) => {
-            if (err) {
-              reject(new Error("Internal server error"));
-            } else {
-              resolve([totalData, totalPage, result, page, perPage]);
-            }
-          }
-        );
       }
     );
   });
