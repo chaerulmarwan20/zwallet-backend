@@ -183,3 +183,61 @@ exports.getDetailsById = (id) => {
     );
   });
 };
+
+exports.getUserIncome = (id) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `SELECT SUM(amount) AS income FROM transactions WHERE idUser = ? AND type = "Receive"`,
+      id,
+      (err, result) => {
+        if (!err) {
+          resolve(result);
+        } else {
+          reject(new Error("Internal server error"));
+        }
+      }
+    );
+  });
+};
+
+exports.getUserExpense = (id) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `SELECT SUM(amount) AS expense FROM transactions WHERE idUser = ? AND type = "Transfer"`,
+      id,
+      (err, result) => {
+        if (!err) {
+          resolve(result);
+        } else {
+          reject(new Error("Internal server error"));
+        }
+      }
+    );
+  });
+};
+
+exports.topUpCredit = (id, amount) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "UPDATE users SET credit = credit + ? WHERE id = ?",
+      [amount, id],
+      (err, result) => {
+        if (!err) {
+          connection.query(
+            "SELECT * FROM users WHERE id = ?",
+            id,
+            (err, result) => {
+              if (!err) {
+                resolve(result);
+              } else {
+                reject(new Error("Internal server error"));
+              }
+            }
+          );
+        } else {
+          reject(new Error("Internal server error"));
+        }
+      }
+    );
+  });
+};

@@ -179,3 +179,79 @@ exports.findDetailsById = (req, res) => {
       helper.printError(res, 500, err.message);
     });
 };
+
+exports.findUserIncome = (req, res) => {
+  const id = req.params.id;
+
+  transactionsModel
+    .getUserIncome(id)
+    .then((result) => {
+      if (result < 1) {
+        helper.printError(res, 400, "User income not found");
+        return;
+      }
+      helper.printSuccess(res, 200, "Find user income successfully", result);
+    })
+    .catch((err) => {
+      helper.printError(res, 500, err.message);
+    });
+};
+
+exports.findUserExpense = (req, res) => {
+  const id = req.params.id;
+
+  transactionsModel
+    .getUserExpense(id)
+    .then((result) => {
+      if (result < 1) {
+        helper.printError(res, 400, "User expense not found");
+        return;
+      }
+      helper.printSuccess(res, 200, "Find user expense successfully", result);
+    })
+    .catch((err) => {
+      helper.printError(res, 500, err.message);
+    });
+};
+
+exports.topUpCredit = async (req, res) => {
+  const id = req.params.id;
+
+  const validate = validation.validationTopUp(req.body);
+
+  if (validate.error) {
+    helper.printError(res, 400, validate.error.details[0].message);
+    return;
+  }
+
+  const amount = req.body.amount;
+
+  try {
+    const getUser = await transactionsModel.getUser(id);
+    if (getUser < 1) {
+      helper.printError(res, 400, "Id user not found!");
+      return;
+    }
+  } catch (err) {
+    helper.printError(res, 500, err.message);
+  }
+
+  transactionsModel
+    .topUpCredit(id, amount)
+    .then((result) => {
+      if (result.affectedRows === 0) {
+        helper.printError(res, 400, "Error top up credit");
+        return;
+      }
+      delete result[0].password;
+      delete result[0].pin;
+      delete result[0].role;
+      delete result[0].active;
+      delete result[0].createdAt;
+      delete result[0].updatedAt;
+      helper.printSuccess(res, 200, "Your credit has been updated", result);
+    })
+    .catch((err) => {
+      helper.printError(res, 500, err.message);
+    });
+};

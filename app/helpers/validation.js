@@ -80,4 +80,10 @@ module.exports = {
     });
     return schema.validate(details);
   },
+  validationTopUp: (topUp) => {
+    const schema = Joi.object({
+      amount: Joi.number().required(),
+    });
+    return schema.validate(topUp);
+  },
 };

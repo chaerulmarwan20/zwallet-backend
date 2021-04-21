@@ -103,7 +103,7 @@ exports.create = async (req, res) => {
     pin: 0,
     phoneNumber,
     image,
-    credit: 100000,
+    credit: 0,
     role: 2,
     active: false,
   };
