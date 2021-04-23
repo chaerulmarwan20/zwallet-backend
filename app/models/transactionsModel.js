@@ -306,7 +306,7 @@ exports.getUserTransactions = (queryPage, queryPerPage, sortBy, order) => {
         }
         const firstData = perPage * page - perPage;
         connection.query(
-          `SELECT transactions.id, users.username, users.email, users.fullName, users.image, transactions.date, transactions.idUser, transactions.amount, transactions.notes, transactions.status, transactions.type FROM transactions INNER JOIN users ON transactions.idReceiver = users.id ORDER BY ${sortBy} ${order} LIMIT ?, ?`,
+          `SELECT transactions.id, users.username, users.email, users.fullName, users.image, users.phoneNumber, transactions.date, transactions.idUser, transactions.amount, transactions.notes, transactions.status, transactions.type FROM transactions INNER JOIN users ON transactions.idReceiver = users.id ORDER BY ${sortBy} ${order} LIMIT ?, ?`,
           [firstData, perPage],
           (err, result) => {
             if (err) {
@@ -324,7 +324,7 @@ exports.getUserTransactions = (queryPage, queryPerPage, sortBy, order) => {
 exports.getUserTransactionsById = (id) => {
   return new Promise((resolve, reject) => {
     connection.query(
-      `SELECT transactions.id, users.username, users.email, users.fullName, users.image, transactions.date, transactions.idUser, transactions.amount, transactions.notes, transactions.status, transactions.type FROM transactions INNER JOIN users ON transactions.idReceiver = users.id WHERE transactions.id = ?`,
+      `SELECT transactions.id, users.username, users.email, users.fullName, users.image, users.phoneNumber, transactions.date, transactions.idUser, transactions.amount, transactions.notes, transactions.status, transactions.type FROM transactions INNER JOIN users ON transactions.idReceiver = users.id WHERE transactions.id = ?`,
       id,
       (err, result) => {
         if (!err) {
