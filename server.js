@@ -9,6 +9,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
+const cookieParser = require("cookie-parser");
 
 // Router
 const router = require("./app/routers");
@@ -24,8 +25,13 @@ app.use(
   })
 );
 
-app.use(cors());
+const optionCors = {
+  origin: "http://localhost:3000",
+  credentials: true,
+};
+app.use(cors(optionCors));
 app.use(morgan("dev"));
+app.use(cookieParser());
 
 app.use("/api/v1", router);
 

@@ -31,6 +31,35 @@ exports.findAll = (req, res) => {
     });
 };
 
+exports.findAllPayment = (req, res) => {
+  const { page, perPage } = req.query;
+  const keyword = req.query.keyword ? req.query.keyword : "";
+  const sortBy = req.query.sortBy ? req.query.sortBy : "id";
+  const order = req.query.order ? req.query.order : "ASC";
+
+  transactionsModel
+    .getAllPayments(page, perPage, keyword, sortBy, order)
+    .then(([totalData, totalPage, result, page, perPage]) => {
+      if (result < 1) {
+        helper.printError(res, 400, "Payments not found");
+        return;
+      }
+      helper.printPaginate(
+        res,
+        200,
+        "Find all payments successfully",
+        totalData,
+        totalPage,
+        result,
+        page,
+        perPage
+      );
+    })
+    .catch((err) => {
+      helper.printError(res, 500, err.message);
+    });
+};
+
 exports.create = async (req, res) => {
   const validate = validation.validationTransactions(req.body);
 
@@ -163,6 +192,56 @@ exports.findUserTransactions = (req, res) => {
     });
 };
 
+exports.findUserTransactionsHistory = (req, res) => {
+  const { page, perPage } = req.query;
+  const sortBy = req.query.sortBy ? req.query.sortBy : "id";
+  const order = req.query.order ? req.query.order : "ASC";
+
+  transactionsModel
+    .getUserTransactions(page, perPage, sortBy, order)
+    .then(([totalData, totalPage, result, page, perPage]) => {
+      if (result < 1) {
+        helper.printError(res, 400, "Transactions history not found");
+        return;
+      }
+      helper.printPaginate(
+        res,
+        200,
+        "Find all user transactions history successfully",
+        totalData,
+        totalPage,
+        result,
+        page,
+        perPage
+      );
+    })
+    .catch((err) => {
+      helper.printError(res, 500, err.message);
+    });
+};
+
+exports.findUserTransactionsHistoryById = (req, res) => {
+  const id = req.params.id;
+
+  transactionsModel
+    .getUserTransactionsById(id)
+    .then((result) => {
+      if (result < 1) {
+        helper.printError(res, 400, "Transactions history by id not found");
+        return;
+      }
+      helper.printSuccess(
+        res,
+        200,
+        "Find transactions history by id successfully",
+        result
+      );
+    })
+    .catch((err) => {
+      helper.printError(res, 500, err.message);
+    });
+};
+
 exports.findDetailsById = (req, res) => {
   const id = req.params.id;
 
@@ -224,32 +303,47 @@ exports.topUpCredit = async (req, res) => {
     return;
   }
 
-  const amount = req.body.amount;
+  const { amount, idPayment } = req.body;
+
+  let payment;
 
   try {
     const getUser = await transactionsModel.getUser(id);
-    if (getUser < 1) {
-      helper.printError(res, 400, "Id user not found!");
+    payment = await transactionsModel.getPayment(idPayment);
+    if (getUser < 1 || payment < 1) {
+      helper.printError(res, 400, "Id user or payment not found!");
       return;
     }
   } catch (err) {
     helper.printError(res, 500, err.message);
   }
 
+  const data = {
+    idUser: id,
+    date: new Date(),
+    idReceiver: idPayment,
+    amount: amount,
+    notes: `Top up from ${payment[0].name}`,
+    type: "Top Up",
+    status: "Success",
+  };
+
   transactionsModel
-    .topUpCredit(id, amount)
-    .then((result) => {
+    .createTransactions(data)
+    .then(async (result) => {
       if (result.affectedRows === 0) {
-        helper.printError(res, 400, "Error top up credit");
+        helper.printError(res, 400, "Error creating transactions");
         return;
       }
-      delete result[0].password;
-      delete result[0].pin;
-      delete result[0].role;
-      delete result[0].active;
-      delete result[0].createdAt;
-      delete result[0].updatedAt;
-      helper.printSuccess(res, 200, "Your credit has been updated", result);
+      const topup = await transactionsModel.topUpCredit(id, amount);
+      topup[0].payment = payment[0].name;
+      delete topup[0].password;
+      delete topup[0].pin;
+      delete topup[0].role;
+      delete topup[0].active;
+      delete topup[0].createdAt;
+      delete topup[0].updatedAt;
+      helper.printSuccess(res, 200, "Your credit has been updated", topup);
     })
     .catch((err) => {
       helper.printError(res, 500, err.message);

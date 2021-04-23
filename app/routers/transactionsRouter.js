@@ -5,10 +5,16 @@ const auth = require("../middlewares/auth");
 
 router
   .get("/", auth.verification(), transactionsController.findAll)
+  .get("/payments", transactionsController.findAllPayment)
   .post("/", auth.verification(), transactionsController.create)
   .post("/details", auth.verification(), transactionsController.createDetails)
   .put("/top-up/:id", auth.verification(), transactionsController.topUpCredit)
   .get("/:id", auth.verification(), transactionsController.findUserTransactions)
+  .get("/details/users", transactionsController.findUserTransactionsHistory)
+  .get(
+    "/details/users/:id",
+    transactionsController.findUserTransactionsHistoryById
+  )
   .get(
     "/income/:id",
     auth.verification(),

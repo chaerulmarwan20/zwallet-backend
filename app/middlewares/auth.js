@@ -27,6 +27,31 @@ exports.verification = () => {
   };
 };
 
+exports.verifyAccess = () => {
+  return function (req, res, next) {
+    const authorization = req.cookies.token;
+    if (authorization) {
+      const token = authorization;
+      jwt.verify(token, secretKey, (err, decoded) => {
+        if (err) {
+          if (err.name === "JsonWebTokenError") {
+            helper.printError(res, 401, "Invalid signature");
+          } else if (err.name === "TokenExpiredError") {
+            helper.printError(res, 401, "Token is expired");
+          } else {
+            helper.printError(res, 401, "Token is not active");
+          }
+        } else {
+          req.auth = decoded;
+          next();
+        }
+      });
+    } else {
+      helper.printError(res, 401, "Token is required");
+    }
+  };
+};
+
 exports.isAdmin = () => {
   return function (req, res, next) {
     const role = req.auth.role;

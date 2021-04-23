@@ -83,6 +83,7 @@ module.exports = {
   validationTopUp: (topUp) => {
     const schema = Joi.object({
       amount: Joi.number().required(),
+      idPayment: Joi.number().required(),
     });
     return schema.validate(topUp);
   },

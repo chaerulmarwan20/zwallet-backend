@@ -7,10 +7,12 @@ const auth = require("../middlewares/auth");
 router
   .get("/", auth.verification(), usersController.findAll)
   .get("/find-one", auth.verification(), usersController.findOne)
+  .get("/find-users", auth.verifyAccess(), usersController.findOne)
   .post("/", multer.uploadImage.single("image"), usersController.create)
   .get("/auth/verify", usersController.verify)
   .post("/pin/:email", usersController.createPin)
   .post("/auth/login", usersController.login)
+  .get("/auth/logout", usersController.logout)
   .post("/auth/forgot-password", usersController.forgotPassword)
   .put("/auth/reset-password", usersController.resetPassword)
   .put(

@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const ip = require("ip");
 const path = require("path");
 const fs = require("fs");
+const cookie = require("cookie");
 const usersModel = require("../models/usersModel");
 const helper = require("../helpers/printHelper");
 const mail = require("../helpers/sendEmail");
@@ -10,13 +11,14 @@ const validation = require("../helpers/validation");
 const secretKey = process.env.SECRET_KEY;
 
 exports.findAll = (req, res) => {
+  const idUser = req.auth.id;
   const { page, perPage } = req.query;
   const keyword = req.query.keyword ? req.query.keyword : "";
   const sortBy = req.query.sortBy ? req.query.sortBy : "id";
   const order = req.query.order ? req.query.order : "ASC";
 
   usersModel
-    .getAllUsers(page, perPage, keyword, sortBy, order)
+    .getAllUsers(page, perPage, keyword, sortBy, order, idUser)
     .then(([totalData, totalPage, result, page, perPage]) => {
       if (result < 1) {
         helper.printError(res, 400, "Users not found");
@@ -286,6 +288,16 @@ exports.login = (req, res) => {
           accessToken: token,
           ipAddress: ip.address(),
         };
+        res.setHeader(
+          "Set-Cookie",
+          cookie.serialize("token", token, {
+            httpOnly: true,
+            maxAge: 60 * 60 * 24,
+            secure: false,
+            path: "/",
+            sameSite: "strict",
+          })
+        );
         await usersModel.createToken(data);
         helper.printSuccess(res, 200, "Login successfull", result);
       });
@@ -297,6 +309,21 @@ exports.login = (req, res) => {
         helper.printError(res, 500, err.message);
       }
     });
+};
+
+exports.logout = (req, res) => {
+  res.setHeader(
+    "Set-Cookie",
+    cookie.serialize("token", "", {
+      httpOnly: true,
+      maxAge: 0,
+      secure: false,
+      path: "/",
+      sameSite: "strict",
+    })
+  );
+
+  helper.printSuccess(res, 200, "Successfull", {});
 };
 
 exports.forgotPassword = (req, res) => {
