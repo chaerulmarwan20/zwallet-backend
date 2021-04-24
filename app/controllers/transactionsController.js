@@ -343,7 +343,7 @@ exports.topUpCredit = async (req, res) => {
       delete topup[0].active;
       delete topup[0].createdAt;
       delete topup[0].updatedAt;
-      helper.printSuccess(res, 200, "Your credit has been updated", topup);
+      helper.printSuccess(res, 200, "Your balance has been updated", topup);
     })
     .catch((err) => {
       helper.printError(res, 500, err.message);
