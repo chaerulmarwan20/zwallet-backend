@@ -11,7 +11,7 @@ exports.getAllUsers = (
 ) => {
   return new Promise((resolve, reject) => {
     connection.query(
-      "SELECT COUNT(*) AS totalData FROM users WHERE username LIKE ? AND role = 2 AND id <> ?",
+      "SELECT COUNT(*) AS totalData FROM users WHERE fullName LIKE ? AND role = 2 AND id <> ?",
       [`%${keyword}%`, idUser],
       (err, result) => {
         let totalData, page, perPage, totalPage;
@@ -25,7 +25,7 @@ exports.getAllUsers = (
         }
         const firstData = perPage * page - perPage;
         connection.query(
-          `SELECT * FROM users WHERE username LIKE ? AND role = 2 AND id <> ? ORDER BY ${sortBy} ${order} LIMIT ?, ?`,
+          `SELECT * FROM users WHERE fullName LIKE ? AND role = 2 AND id <> ? ORDER BY ${sortBy} ${order} LIMIT ?, ?`,
           [`%${keyword}%`, idUser, firstData, perPage],
           (err, result) => {
             if (err) {
@@ -496,7 +496,7 @@ exports.createPhoneNumber = (id, data) => {
 exports.deletePhoneNumber = (id) => {
   return new Promise((resolve, reject) => {
     connection.query(
-      `UPDATE users SET phoneNumber = "none" WHERE id = ?`,
+      `UPDATE users SET phoneNumber = "000000000000" WHERE id = ?`,
       id,
       (err, result) => {
         if (!err) {

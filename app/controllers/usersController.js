@@ -561,7 +561,7 @@ exports.checkPin = (req, res) => {
       delete result[0].updatedAt;
       delete result[0].role;
       delete result[0].active;
-      helper.printSuccess(res, 200, "Check pin successfull", result);
+      helper.printSuccess(res, 200, "Please type your new PIN", result);
     })
     .catch((err) => {
       if (err.message === "Internal server error") {
