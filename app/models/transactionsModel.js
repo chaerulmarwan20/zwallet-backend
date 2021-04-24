@@ -219,7 +219,7 @@ exports.getDetailsById = (id) => {
 exports.getUserIncome = (id) => {
   return new Promise((resolve, reject) => {
     connection.query(
-      `SELECT SUM(amount) AS income FROM transactions WHERE idUser = ? AND type = "Receive"`,
+      `SELECT SUM(amount) AS income FROM transactions WHERE idUser = ? AND type <> "Transfer"`,
       id,
       (err, result) => {
         if (!err) {
