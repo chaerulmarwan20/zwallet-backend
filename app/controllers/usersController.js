@@ -299,7 +299,7 @@ exports.login = (req, res) => {
           })
         );
         await usersModel.createToken(data);
-        helper.printSuccess(res, 200, "Login successfull", result);
+        helper.printSuccess(res, 200, "Login successfully", result);
       });
     })
     .catch((err) => {
