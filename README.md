@@ -41,5 +41,5 @@ The zwallet application is created using how many dependencies, along with a lis
 
 ## Link:
 
-- [Frontend](https://github.com/chaerulmarwan20/zwallet-frontend.git)
+- [Frontend](https://github.com/chaerulmarwan20/zwallet-frontend)
 - [Visit Project](https://zwallet-banking.vercel.app/)
