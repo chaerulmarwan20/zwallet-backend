@@ -73,7 +73,7 @@ exports.findOne = (req, res) => {
 exports.create = async (req, res) => {
   let image;
   if (!req.file) {
-    image = "images\\avatar.png";
+    image = "images\\default.png";
   } else {
     image = req.file.path;
   }
@@ -85,14 +85,8 @@ exports.create = async (req, res) => {
     return;
   }
 
-  const {
-    username,
-    email,
-    password,
-    firstName,
-    lastName,
-    phoneNumber,
-  } = req.body;
+  const { username, email, password, firstName, lastName, phoneNumber } =
+    req.body;
 
   const data = {
     username,
@@ -301,6 +295,13 @@ exports.login = (req, res) => {
 };
 
 exports.forgotPassword = (req, res) => {
+  const validate = validation.validationForgot(req.body);
+
+  if (validate.error) {
+    helper.printError(res, 400, validate.error.details[0].message);
+    return;
+  }
+
   const email = req.body.email;
 
   const data = email;
@@ -433,7 +434,7 @@ exports.update = async (req, res) => {
         image = result[0].image;
       } else {
         const oldImage = result[0].image;
-        if (oldImage !== "images\\avatar.png") {
+        if (oldImage !== "images\\default.png") {
           removeImage(oldImage);
         }
         image = req.file.path;
@@ -446,7 +447,7 @@ exports.update = async (req, res) => {
       delete result[0].pin;
       delete result[0].createdAt;
       delete result[0].updatedAt;
-      helper.printSuccess(res, 200, "Users has been updated", result);
+      helper.printSuccess(res, 200, "Your data has been updated", result);
     })
     .catch((err) => {
       if (err.message === "Internal server error") {
@@ -463,7 +464,7 @@ exports.delete = (req, res) => {
     .findUser(id, "delete")
     .then((result) => {
       const image = result[0].image;
-      if (image !== "images\\avatar.png") {
+      if (image !== "images\\default.png") {
         removeImage(image);
       }
       return usersModel.deleteUsers(id);
@@ -595,7 +596,7 @@ exports.createPhoneNumber = (req, res) => {
   const data = phoneNumber;
 
   usersModel
-    .findUser(id, "create phoneNumber")
+    .findUser(id, "create phone number")
     .then((res) => {
       return usersModel.createPhoneNumber(id, data);
     })
@@ -609,7 +610,7 @@ exports.createPhoneNumber = (req, res) => {
       helper.printSuccess(
         res,
         200,
-        "Your phoneNumber has been created",
+        "Your phone number has been created",
         result
       );
     })
@@ -636,7 +637,7 @@ exports.deletePhoneNumber = (req, res) => {
       helper.printSuccess(
         res,
         200,
-        "Your phoneNumber has been deleted",
+        "Your phone number has been deleted",
         result
       );
     })
