@@ -96,22 +96,6 @@ exports.createUsersToken = (data) => {
   });
 };
 
-exports.findEmail = (email) => {
-  return new Promise((resolve, reject) => {
-    connection.query(
-      "SELECT email FROM users WHERE email = ?",
-      email,
-      (err, result) => {
-        if (!err) {
-          resolve(result);
-        } else {
-          reject(new Error("Internal server error"));
-        }
-      }
-    );
-  });
-};
-
 exports.findToken = (token) => {
   return new Promise((resolve, reject) => {
     connection.query(
@@ -341,7 +325,7 @@ exports.findEmail = (email, message) => {
           if (result.length == 1) {
             resolve(result);
           } else {
-            reject(new Error(`Cannot ${message} users with email = ${email}`));
+            reject(new Error(`Cannot ${message} with email = ${email}`));
           }
         } else {
           reject(new Error("Internal server error"));

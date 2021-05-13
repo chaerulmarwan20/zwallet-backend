@@ -153,7 +153,7 @@ exports.verify = async (req, res) => {
   const token = req.query.token;
 
   try {
-    const user = await usersModel.findEmail(email);
+    const user = await usersModel.findEmail(email, "verify account");
     if (user < 1) {
       helper.printError(res, 400, "Email is not valid!");
       return;
@@ -167,12 +167,16 @@ exports.verify = async (req, res) => {
           jwt.verify(token, secretKey, async (err, decoded) => {
             if (err) {
               if (err.name === "JsonWebTokenError") {
+                await usersModel.deleteEmail(email);
+                await usersModel.deleteToken(email);
                 helper.printError(res, 401, "Invalid signature");
               } else if (err.name === "TokenExpiredError") {
                 await usersModel.deleteEmail(email);
                 await usersModel.deleteToken(email);
                 helper.printError(res, 401, "Token is expired");
               } else {
+                await usersModel.deleteEmail(email);
+                await usersModel.deleteToken(email);
                 helper.printError(res, 401, "Token is not active");
               }
             } else {
@@ -360,7 +364,7 @@ exports.resetPassword = async (req, res) => {
   const password = req.body.password;
 
   try {
-    const user = await usersModel.findEmail(email);
+    const user = await usersModel.findEmail(email, "reset password");
     if (user < 1) {
       helper.printError(res, 400, "Reset password failed! Wrong email.");
       return;
@@ -374,16 +378,19 @@ exports.resetPassword = async (req, res) => {
           jwt.verify(token, secretKey, async (err, decoded) => {
             if (err) {
               if (err.name === "JsonWebTokenError") {
+                await usersModel.deleteToken(email);
                 helper.printError(res, 401, "Invalid signature");
               } else if (err.name === "TokenExpiredError") {
                 await usersModel.deleteToken(email);
                 helper.printError(res, 401, "Token is expired");
               } else {
+                await usersModel.deleteToken(email);
                 helper.printError(res, 401, "Token is not active");
               }
             } else {
               const data = await hash.hashPassword(password);
               await usersModel.setPassword(data, email);
+              await usersModel.deleteToken(email);
               if (!data) {
                 helper.printError(res, 400, "Content cannot be empty");
                 return;

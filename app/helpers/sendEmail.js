@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 const smtpTransport = require("nodemailer-smtp-transport");
-const link = `https://zwallet-banking.vercel.app`;
+const link = `http://localhost:3000`;
 const email = process.env.EMAIL_USER;
 const password = process.env.EMAIL_PASS;
 
@@ -21,16 +21,47 @@ const send = (destination, token, type) => {
         const info = await transporter.sendMail({
           from: email,
           to: destination,
-          subject: "Account Verification",
-          html: `Click this link to verify your account : <a href="${link}/auth/pin/${destination}/${token}">Activate</a>`,
+          subject: "Email Verification - Zwallet",
+          html: `
+            Hello ${destination},
+            <br/>
+            <br/>
+            Thank you for registering on the Zwallet app!
+            <br/>
+            <br/>
+            In order for your email to be used for logging in, we need to verify your email address. Please use the lever URL below to confirm your email address and complete the process.
+            <br/>
+            <br/>
+            Click this link to verify your account : <a href="${link}/auth/pin/${destination}/${token}">Verify Now</a>
+            <br/>
+            <br/>
+            Thank you,
+            <br/>
+            <br/>
+            The Zwallet team
+          `,
         });
         resolve(info);
       } else if (type === "forgot") {
         const info = await transporter.sendMail({
           from: email,
           to: destination,
-          subject: "Reset Password",
-          html: `Click this link to reset your password : <a href="${link}/auth/forgot/${destination}/${token}">Reset Password</a>`,
+          subject: "Reset Password - Zwallet",
+          html: `
+            Hello ${destination},
+            <br/>
+            <br/>
+            Please use the lever URL below to reset your password and complete the process.
+            <br/>
+            <br/>
+            Click this link to reset your password : <a href="${link}/auth/forgot/${destination}/${token}">Reset Now</a>
+            <br/>
+            <br/>
+            Thank you,
+            <br/>
+            <br/>
+            The Zwallet team
+          `,
         });
         resolve(info);
       }
