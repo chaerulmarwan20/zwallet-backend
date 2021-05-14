@@ -1,6 +1,6 @@
 <h1 align="center">Backend - Zwallet</h1>
 <p align="center">
-  <a href="https://booking-tickitz-film.netlify.app/" target="_blank"><img src="./images/Zwallet.png" width="400" alt="Zwallet" border="0" /></a>
+  <a href="https://zwallet-banking.vercel.app/" target="_blank"><img src="./images/Zwallet.png" width="400" alt="Zwallet" border="0" /></a>
 </p>
 
 ## Table of Contents
