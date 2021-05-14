@@ -29,7 +29,7 @@ const send = (destination, token, type) => {
             Thank you for registering on the Zwallet app!
             <br/>
             <br/>
-            In order for your email to be used for logging in, we need to verify your email address. Please use the lever URL below to confirm your email address and complete the process.
+            In order for your email to be used for logging in, we need to verify your email address. Please use the link below to confirm your email address and complete the process.
             <br/>
             <br/>
             Click this link to verify your account : <a href="${link}/auth/pin/${destination}/${token}">Verify Now</a>
@@ -51,7 +51,7 @@ const send = (destination, token, type) => {
             Hello ${destination},
             <br/>
             <br/>
-            Please use the lever URL below to reset your password and complete the process.
+            Please use the link below to reset your password and complete the process.
             <br/>
             <br/>
             Click this link to reset your password : <a href="${link}/auth/forgot/${destination}/${token}">Reset Now</a>
