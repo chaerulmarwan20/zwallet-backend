@@ -19,21 +19,6 @@ module.exports = {
         "string.min": `Password should have a minimum length of {#limit}`,
         "any.required": `Password is a required field`,
       }),
-      firstName: Joi.string().required().messages({
-        "string.base": `First name should be a type of text`,
-        "string.empty": `First name cannot be an empty field`,
-        "any.required": `First name is a required field`,
-      }),
-      lastName: Joi.string().required().messages({
-        "string.base": `Last name should be a type of text`,
-        "string.empty": `Last name cannot be an empty field`,
-        "any.required": `Last name is a required field`,
-      }),
-      phoneNumber: Joi.number().required().messages({
-        "number.base": `Phone number should be a type of number`,
-        "number.empty": `Phone number cannot be an empty field`,
-        "any.required": `Phone number is a required field`,
-      }),
     });
     return schema.validate(users);
   },

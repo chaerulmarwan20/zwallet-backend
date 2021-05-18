@@ -85,18 +85,17 @@ exports.create = async (req, res) => {
     return;
   }
 
-  const { username, email, password, firstName, lastName, phoneNumber } =
-    req.body;
+  const { username, email, password } = req.body;
 
   const data = {
     username,
     email,
     password: await hash.hashPassword(password),
-    firstName,
-    lastName,
-    fullName: `${firstName} ${lastName}`,
+    firstName: "firstName",
+    lastName: "lastName",
+    fullName: "firstName lastName",
     pin: 0,
-    phoneNumber,
+    phoneNumber: "000000000000",
     image,
     credit: 0,
     role: 2,
