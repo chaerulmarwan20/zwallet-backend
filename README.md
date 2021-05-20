@@ -35,6 +35,15 @@ Zwallet is a digital wallet application that simplifies your financial needs and
 - [MySQL](https://www.mysql.com/)
 - [JWT](https://jwt.io/)
 - [Nodemailer](https://nodemailer.com/)
+- [Joi](https://www.npmjs.com/package/joi)
+- [Bcrypt](https://www.npmjs.com/package/bcrypt)
+- [Cookie](https://www.npmjs.com/package/cookie)
+- [Cookie-Parser](https://www.npmjs.com/package/cookie-parser)
+- [Multer](https://www.npmjs.com/package/multer)
+- [Morgan](https://www.npmjs.com/package/morgan)
+- [Cors](https://www.npmjs.com/package/cors)
+- [Dotenv](https://www.npmjs.com/package/dotenv)
+- [Ip](https://www.npmjs.com/package/ip)
 
 ## Prerequisites
 
@@ -86,7 +95,7 @@ Zwallet is a digital wallet application that simplifies your financial needs and
 3. Go to directory `cd zwallet-backend`
 4. Install all required package `npm install`
 5. Create a new file named `.env`, add it's content from `.env.example`
-6. Run server `npm run dev'
+6. Run server `npm run dev` or `npm start`
 
 ## Related Project
 
