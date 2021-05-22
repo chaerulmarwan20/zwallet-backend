@@ -9,9 +9,10 @@
 - [Features](#features)
 - [Built With](#built-with)
 - [Prerequisites](#prerequisites)
-- [Endpoint](#endpoint)
 - [Installation](#installation)
-- [Related Project](#related-project)
+- [Documentation](#documentation)
+- [Link](#link)
+- [Author](#author)
 
 ## Introduction
 
@@ -50,54 +51,66 @@ Zwallet is a digital wallet application that simplifies your financial needs and
 - [NodeJs](https://nodejs.org/en/download/)
 - [XAMPP](https://www.apachefriends.org/index.html)
 
-## Endpoint
-
-- User
-
-|  METHOD  |                API                 |
-| :------: | :--------------------------------: |
-|  `GET`   |           /api/v1/users            |
-|  `GET`   |       /api/v1/users/find-one       |
-|  `POST`  |           /api/v1/users            |
-|  `GET`   |     /api/v1/users/auth/verify      |
-|  `PUT`   |         /api/v1/users/:id          |
-|  `POST`  |      /api/v1/users/auth/login      |
-|  `POST`  | /api/v1/users/auth/forgot-password |
-|  `PUT`   | /api/v1/users/auth/reset-password  |
-|  `PUT`   | /api/v1/users/change-password/:id  |
-|  `GET`   |       /api/v1/users/pin/:id        |
-|  `POST`  |      /api/v1/users/pin/:email      |
-|  `PUT`   |       /api/v1/users/pin/:id        |
-|  `POST`  |   /api/v1/users/phoneNumber/:id    |
-| `DELETE` |   /api/v1/users/phoneNumber/:id    |
-| `DELETE` |         /api/v1/users/:id          |
-
-- Transaction
-
-| METHOD |                  API                   |
-| :----: | :------------------------------------: |
-| `GET`  |          /api/v1/transactions          |
-| `GET`  |        /api/v1/transactions/:id        |
-| `GET`  |   /api/v1/transactions/details/users   |
-| `GET`  |    /api/v1/transactions/details/:id    |
-| `GET`  | /api/v1/transactions/details/users/:id |
-| `PUT`  |    /api/v1/transactions/top-up/:id     |
-| `GET`  |    /api/v1/transactions/income/:id     |
-| `GET`  |    /api/v1/transactions/expense/:id    |
-| `GET`  |   /api/v1/transactions/receiver/:id    |
-| `POST` |          /api/v1/transactions          |
-| `POST` |      /api/v1/transactions/details      |
-
 ## Installation
 
-1. Open your terminal or command prompt. Then, clone the repository `git clone https://github.com/chaerulmarwan20/zwallet-backend.git`
-2. Create database named `zwallet` and import `zwallet.sql` from this repository
-3. Go to directory `cd zwallet-backend`
-4. Install all required package `npm install`
-5. Create a new file named `.env`, add it's content from `.env.example`
-6. Run server `npm run dev` or `npm start`
+1. Clone the repository
 
-## Related Project
+```
+git clone https://github.com/chaerulmarwan20/zwallet-backend.git
+cd zwallet-backend
+```
+
+2. Install package
+
+```
+npm install
+```
+
+3. Create database named `zwallet` and import `zwallet.sql` from this repository
+
+4. Create .env file
+
+```
+# Host & Port
+HOST=
+PORT=
+PORT_FRONTEND=
+
+# Database
+DB_HOST=
+DB_USER=
+DB_PASS=
+DB_NAME=zwallet
+
+# Secret Key
+SECRET_KEY=
+
+# Email
+EMAIL_USER=
+EMAIL_PASS=
+```
+
+5. Run application
+
+```
+npm run dev
+```
+
+Or
+
+```
+npm start
+```
+
+## Documentation
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://documenter.getpostman.com/view/11970262/TzXtJfmE)
+
+## Link
 
 - :white_check_mark: [`Frontend Zwallet`](https://github.com/chaerulmarwan20/zwallet-frontend)
-- :rocket: [`Production`](https://zwallet-banking.vercel.app/)
+- :rocket: [`Publication`](https://zwallet-banking.vercel.app/)
+
+## Author
+
+- [Chaerul Marwan](https://github.com/chaerulmarwan20)
