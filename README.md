@@ -66,7 +66,7 @@ cd zwallet-backend
 npm install
 ```
 
-3. Create database named `zwallet` and import `zwallet.sql` from this repository
+3. Create a new database with a name `zwallet` and import `zwallet.sql` from this repository
 
 4. Create .env file
 
