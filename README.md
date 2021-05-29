@@ -20,7 +20,7 @@ Zwallet is a digital wallet application that simplifies your financial needs and
 
 ## Features
 
-- JWT authentication with cookie
+- JWT authentication
 
 - Nodemailer for email verification
 
@@ -38,8 +38,6 @@ Zwallet is a digital wallet application that simplifies your financial needs and
 - [Nodemailer](https://nodemailer.com/)
 - [Joi](https://www.npmjs.com/package/joi)
 - [Bcrypt](https://www.npmjs.com/package/bcrypt)
-- [Cookie](https://www.npmjs.com/package/cookie)
-- [Cookie-Parser](https://www.npmjs.com/package/cookie-parser)
 - [Multer](https://www.npmjs.com/package/multer)
 - [Morgan](https://www.npmjs.com/package/morgan)
 - [Cors](https://www.npmjs.com/package/cors)
