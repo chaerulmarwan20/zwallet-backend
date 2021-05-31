@@ -46,7 +46,7 @@ Zwallet is a digital wallet application that simplifies your financial needs and
 
 ## Prerequisites
 
-- [NodeJs](https://nodejs.org/en/download/)
+- [NodeJs](https://nodejs.org/)
 - [MySQL](https://www.mysql.com/)
 
 ## Installation
